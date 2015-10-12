@@ -1,0 +1,28 @@
+.inputs-wrapper {
+    min-height: 40px;
+    width: 500px;
+    text-align: center;
+    margin: 20px auto;
+    clear: both;
+}
+
+.monitor-wrapper {
+    width: 500px;
+    margin: 20px auto;
+}
+
+.monitor-wrapper table {
+    border-radius: 10px; 
+    overflow: hidden;
+}
+
+.password-group {
+    width: 200px;
+    margin: auto;
+    float: left;
+}
+
+.server-control-buttons {
+    width: 100%;
+    margin: auto;
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>LiF control panel</title>
+
+        <!-- jQuery 2.1.3 -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+        <!-- Main script -->
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/main.js" type="text/javascript" charset="utf-8"></script>
+    </head>
+    <body>
+    <div class="inputs-wrapper">
+        <div class="server-control-buttons btn-group" role="group">
+            <input type="button" name="" id="startServer" class="btn btn-success" value="Start server" />
+            <input type="button" name="" id="stopServer" class="btn btn-danger" value="Stop server" />
+            <div class="btn-group" role="group">
+                <button type="button" name="" id="" class="btn btn-primary dropdown-toggle" aria-haspopup="true" data-toggle="dropdown">
+                    Utils
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu " role="group">
+                    <li id="chopTrees" class="primary"><a href="#">Chop trees &lt; 30 lvl</a></li>
+                    <li id="cleanChoppedTrees" class="primary"><a href="#">Clean chopped trees</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="monitor-wrapper">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td class="server-status">Server status:</td>
+                    <td class="server-status value"></td>
+                </tr>
+                <tr>
+                    <td class="server-version">Current server version / Available server version:</td>
+                    <td class="server-version value"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </body>
+</html>
