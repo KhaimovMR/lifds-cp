@@ -1,11 +1,44 @@
+var baseBannedAccountFirstTr = '<tr class="danger"><td class="steam-id"></td><td class="character"></td></tr>';
+var baseBannedAccountSecondTr = '<tr class="danger"><td class="character"></td></tr>';
+var baseActiveAccountFirstTr = '<tr class="success"><td class="steam-id"></td><td class="character"></td></tr>';
+var baseActiveAccountSecondTr = '<tr class="success"><td class="character"></td></tr>';
+
 $(function () {
     $('#startServer').on('click', function(){serverAction('start');});
     $('#stopServer').on('click', function(){serverAction('stop');});
+    $('#deleteTrees').on('click', function(){serverAction('delete-trees');});
+    $('#deleteStubs').on('click', function(){serverAction('delete-stubs');});
     $('#autorestartServerCheckbox').on('change', autorestartServerCheckboxChange);
+    $('#nav_tabs a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+        activeAccountsTab(e.target);
+        bannedAccountsTab(e.target);
+    });
     serverStatusLongPoll(0);
 });
 
-function serverAction(action) {
+function activeAccountsTab(linkElement) {
+    if ($(linkElement).attr("href") === "#active_accounts") {
+        $(".active-accounts-table").css("display: none;");
+        serverAction("get-active-accounts", renderAccounts);
+    }
+}
+
+function bannedAccountsTab(linkElement) {
+    if ($(linkElement).attr("href") === "#banned_accounts") {
+        $(".banned-accounts-table").css("display: none;");
+        serverAction("get-banned-accounts", renderAccounts);
+    }
+}
+
+function serverAction(action, successCallback) {
+    if (typeof(successCallback) === "undefined") {
+        successCallback = function() {};
+    }
+
+    if (typeof(successCallbackParams) === "undefined") {
+        successCallbackParams = {};
+    }
+
     $.ajax({
         url: '/server',
         type: 'POST',
@@ -15,10 +48,56 @@ function serverAction(action) {
             action: action
         },
         success: function (data, textStatus, jqXHR) {
-            // success callback
+            successCallback(data, action);
             console.log("success");
         }
     }); 
+}
+
+function makeSteamUrl(steamId) {
+    return '<a href="http://steamcommunity.com/profiles/' + steamId + '">' + steamId + '</a>';
+}
+
+function renderAccounts(data, action) {
+    var prefix = "";
+    var firstTr = "";
+    var secondTr = "";
+
+    if (action === "get-banned-accounts") {
+        prefix = "banned";
+        firstTr = baseBannedAccountFirstTr;
+        secondTr = baseBannedAccountSecondTr;
+    } else if (action === "get-active-accounts") {
+        prefix = "active";
+        firstTr = baseActiveAccountFirstTr;
+        secondTr = baseActiveAccountSecondTr;
+    }
+
+    $("." + prefix + "-accounts-table tbody").html("");
+
+    for (i in data) {
+        if (typeof(data[i].SteamID) === "undefined" || typeof(data[i].Characters) === "undefined") {
+            break;
+        }
+
+        var charsCount = data[i].Characters.length
+        var tr;
+
+        for (j in data[i].Characters) {
+            if (j === "0") {
+                tr = $(firstTr);
+                tr.find(".steam-id").attr('rowspan', charsCount)
+                tr.find(".steam-id").html(makeSteamUrl(data[i].SteamID));
+            } else {
+                tr = $(secondTr);
+            }
+
+            tr.find(".character").html(data[i].Characters[j]);
+            $("." + prefix + "-accounts-table tbody").append(tr);
+        }
+    }
+
+    $("." + prefix + "-accounts-table").css("display: table;");
 }
 
 function serverStatusLongPoll(topic_version) {

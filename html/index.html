@@ -10,7 +10,7 @@
 
         <!-- Bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.css">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
         <!-- Main script -->
@@ -28,25 +28,63 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu " role="group">
-                    <li id="chopTrees" class="primary"><a href="#">Chop trees &lt; 30 lvl</a></li>
-                    <li id="cleanChoppedTrees" class="primary"><a href="#">Clean chopped trees</a></li>
+                    <li id="deleteTrees" class="primary"><a href="#">Chop trees &lt; 30 lvl</a></li>
+                    <li id="deleteStubs" class="primary"><a href="#">Clean chopped trees</a></li>
                 </ul>
             </div>
         </div>
     </div>
     <div class="monitor-wrapper">
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td class="server-status">Server status:</td>
-                    <td class="server-status value"></td>
-                </tr>
-                <tr>
-                    <td class="server-version">Current server version / Available server version:</td>
-                    <td class="server-version value"></td>
-                </tr>
-            </tbody>
-        </table>
+        <div>
+            <ul class="nav nav-tabs" role="tablist" id="nav_tabs">
+                <li class="active" role="presentation"><a href="#dashboard" aria-control="dashboard" role="tab" data-toggle="tab">Dashboard</a></li>
+                <li role="presentation"><a href="#active_accounts" aria-control="active_accounts" role="tab" data-toggle="tab">Active accounts</a></li>
+                <li role="presentation"><a href="#banned_accounts" aria-control="banned_accounts" role="tab" data-toggle="tab">Banned accounts</a></li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="dashboard">
+                    <h3>Dashboard</h3>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td class="server-status">Server status:</td>
+                                <td class="server-status value"></td>
+                            </tr>
+                            <tr>
+                                <td class="server-version">Current server version / Available server version:</td>
+                                <td class="server-version value"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="active_accounts">
+                    <h3>Active accounts</h3>
+                    <table class="table active-accounts-table">
+                        <thead>
+                            <tr class="success">
+                                <th>SteamID</th>
+                                <th>Characters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="banned_accounts">
+                    <h3>Banned accounts</h3>
+                    <table class="table banned-accounts-table">
+                        <thead>
+                            <tr class="danger">
+                                <th>SteamID</th>
+                                <th>Characters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
     </body>
 </html>

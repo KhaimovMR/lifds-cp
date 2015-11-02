@@ -12,7 +12,7 @@ func indexHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	fmt.Fprint(w, indexHtml)
 }
 
-func serverActionsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
+func ServerActionsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	r.ParseForm()
 	clientToken, ok := r.PostForm["token"]
 
@@ -36,7 +36,7 @@ func serverActionsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	processClientAction(clientAction[0], w)
 }
 
-func serverStatusHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
+func ServerStatusHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 	r.ParseForm()
 
 	clientToken, ok := r.PostForm["token"]

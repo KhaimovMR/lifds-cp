@@ -1,9 +1,9 @@
 #!/bin/bash
-GOARCH=amd64
-GOOS=linux
+export GOARCH=amd64
+export GOOS=windows
 go build
-GOOS=windows
-go build
-cp -r lifds-cp.ini lifds-cp.exe html ~/Dropbox/lifds-cp
+rm -rf ~/Dropbox/lifds-cp/*
+cp -r lifds-cp.ini html sql ~/Dropbox/lifds-cp
+mv lifds-cp.exe ~/Dropbox/lifds-cp
 go build -ldflags="-H windowsgui"
-cp -r lifds-cp.ini lifds-cp.exe html ~/Dropbox/lifds-cp-bg
+mv lifds-cp.exe ~/Dropbox/lifds-cp/lifds-cp-bg.exe

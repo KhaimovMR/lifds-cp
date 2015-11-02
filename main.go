@@ -1,12 +1,33 @@
 package main
 
 import (
+	"database/sql"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"time"
 )
+
+type Account struct {
+	SteamID    uint64
+	IsActive   bool
+	Characters map[string]*Character
+}
+
+type Character struct {
+	Name            string
+	LastName        string
+	CreateTimestamp time.Time
+	DeleteTimestamp sql.NullInt64
+	IsActive        bool
+	SteamID         uint64
+}
+
+type BannedAccountResponse struct {
+	SteamID    uint64
+	Characters []string
+}
 
 var (
 	adminPassword           string
@@ -16,6 +37,8 @@ var (
 	exePath                 string
 	worldCfgPath            string
 	worldCfgContents        string
+	localCfgPath            string
+	localCfgContents        string
 	exeFileName             string
 	exeCmd                  *exec.Cmd
 	doneChan                chan error
@@ -35,26 +58,18 @@ var (
 	topicVersion            int
 	indexHtml               string
 	osPathSeparator         string
+	dbConn                  *sql.DB
+	accounts                map[uint64]*Account
+	characters              map[string]*Character
+	charKeysSorted          []string
+	accKeysSorted           []uint64
+	sqls                    map[string]string
 )
 
 func init() {
-	config = loadConfiguration()
-
-	if config["lifds"]["lifds-exe-file-name"] == "" {
-		exeFileName = "ddctd_cm_yo_server.exe"
-	} else {
-		exeFileName = config["lifds"]["lifds-exe-file-name"]
-	}
-
 	osPathSeparator = string(os.PathSeparator)
-	exePath = config["lifds"]["lifds-directory"] + osPathSeparator + exeFileName
-	worldCfgPath = config["lifds"]["lifds-directory"] + osPathSeparator + "config" + osPathSeparator + "world_" + config["lifds"]["world-id"] + ".xml"
-	worldCfgContentsBuff, err := ioutil.ReadFile(worldCfgPath)
-	worldCfgContents = string(worldCfgContentsBuff)
-
-	if err != nil {
-		log.Printf("Can't open config file \"%s\"", worldCfgPath)
-	}
+	sqls = loadSqlQueries()
+	config = loadConfiguration()
 
 	indexHtmlFile, err := ioutil.ReadFile("html/index.html")
 	indexHtml = string(indexHtmlFile)
@@ -79,11 +94,15 @@ func init() {
 	currentSrvVersionChan = make(chan string)
 	availableSrvVersionChan = make(chan string)
 	availableSrvVersionChan = make(chan string)
+	accounts = make(map[uint64]*Account)
+	characters = make(map[string]*Character)
 	currentSrvVersion = "1"
 	availableSrvVersion = "1"
 	statusPolls = make(map[int]chan string)
 	responseBaseStr = "{\"debug\": %t, \"status\": \"%s\", \"current_version\": \"%s\", \"available_version\": \"%s\", \"topic_version\": %d}"
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Lmicroseconds)
+	initDbConnection()
+	fillDbData()
 }
 
 func main() {
