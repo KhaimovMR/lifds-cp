@@ -50,10 +50,6 @@
                                 <td class="server-status">Server status:</td>
                                 <td class="server-status value"></td>
                             </tr>
-                            <tr>
-                                <td class="server-version">Current server version / Available server version:</td>
-                                <td class="server-version value"></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -62,8 +58,8 @@
                     <table class="table active-accounts-table">
                         <thead>
                             <tr class="success">
-                                <th>SteamID</th>
                                 <th>Characters</th>
+                                <th class="steam-id">SteamID</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,13 +71,327 @@
                     <table class="table banned-accounts-table">
                         <thead>
                             <tr class="danger">
-                                <th>SteamID</th>
                                 <th>Characters</th>
+                                <th class="steam-id">SteamID</th>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="charSkillsModal" tabindex="-1" role"dialog" arial-labelledby="charSkillsModalLabel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <h5 class="character-name"></h5>
+                    <div>
+                        <ul class="nav nav-tabs" role="tablist" id="nav_tabs">
+                            <li class="active" role="presentation"><a href="#craftingTab" aria-control="craftingTab" role="tab" data-toggle="tab">Crafting</a></li>
+                            <li role="presentation"><a href="#combatTab" aria-control="combatTab" role="tab" data-toggle="tab">Combat</a></li>
+                            <li role="presentation"><a href="#minorTab" aria-control="minorTab" role="tab" data-toggle="tab">Minor</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="craftingTab">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill1">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/1.png" title="Prospecting" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill2">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/2.png" title="Mining" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill3">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/3.png" title="Smelting" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill4">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/4.png" title="Forging" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill5">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/5.png" title="Armorsmithing" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill6">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/6.png" title="Forestry" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill7">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/7.png" title="Logging" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill8">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/8.png" title="Carpentry" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill9">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/9.png" title="Bowcraft" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill10">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/10.png" title="Warfare engineering" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill11">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/11.png" title="Nature's lore" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill12">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/12.png" title="Gathering" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill13">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/13.png" title="Herbalism" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill14">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/14.png" title="Healing" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill15">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/15.png" title="Alchemy" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill16">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/16.png" title="Terraforming" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill17">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/17.png" title="Construction materials preparation" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill18">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/18.png" title="Construction" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill19">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/19.png" title="Masonry" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill20">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/20.png" title="Architecture" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill21">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/21.png" title="Farming" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill22">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/22.png" title="Animal lore" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill23">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/23.png" title="Procuration" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill24">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/24.png" title="Cooking" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill25">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/25.png" title="Outfit craft" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill51">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/51.png" title="Fishing/hunting" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill52">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/52.png" title="Jewelry" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill53">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/53.png" title="Arts" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill54">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/54.png" title="Piety" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill55">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/55.png" title="Mentoring" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="combatTab">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill26">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/26.png" title="War horse handling" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill27">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/27.png" title="Chainmail armors" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill28">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/28.png" title="Mounted fighting mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill29">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/29.png" title="Lancing" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill30">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/30.png" title="Heavy horse handling" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill31">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/31.png" title="Militia service" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill32">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/32.png" title="Padded armors" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill33">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/33.png" title="Spear mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill34">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/34.png" title="Unarmed combat" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill35">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/35.png" title="Poleaxes mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill36">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/36.png" title="Blades mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill37">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/37.png" title="Scale armors" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill38">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/38.png" title="Shield mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill39">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/39.png" title="Axe and mace mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill40">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/40.png" title="Piercing mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill41">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/41.png" title="2H blades mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill42">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/42.png" title="Plate armors" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill43">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/43.png" title="2H axes mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill44">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/44.png" title="2H blunt mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill45">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/45.png" title="War cries" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill46">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/46.png" title="Throwing weaponry" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill47">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/47.png" title="Leather armors" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill48">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/48.png" title="Crossbows mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill49">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/49.png" title="Bows mastery" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill50">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/50.png" title="Combat preparation" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill56">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/56.png" title="Unit and formation" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill57">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/57.png" title="Equipment maintain" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill58">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/58.png" title="First Aid" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill59">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/59.png" title="Demolition" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill60">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/60.png" title="Drill" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="minorTab">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-xs-2" id="skill61">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/61.png" title="Climbing" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill62">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/62.png" title="Lifting" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill63">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/63.png" title="Horseback riding" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill64">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/64.png" title="Swimming" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                        <div class="col-xs-2" id="skill65">
+                                            <div class="row"><div class="col-xs-1"><img src="images/skills/65.png" title="Authority" /></div></div>
+                                            <div class="row"><div class="col-xs-1 value">0</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

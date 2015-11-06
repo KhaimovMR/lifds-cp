@@ -1,6 +1,6 @@
-var baseBannedAccountFirstTr = '<tr class="danger"><td class="steam-id"></td><td class="character"></td></tr>';
+var baseBannedAccountFirstTr = '<tr class="danger"><td class="character"></td><td class="steam-id"></td></tr>';
 var baseBannedAccountSecondTr = '<tr class="danger"><td class="character"></td></tr>';
-var baseActiveAccountFirstTr = '<tr class="success"><td class="steam-id"></td><td class="character"></td></tr>';
+var baseActiveAccountFirstTr = '<tr class="success"><td class="character"></td><td class="steam-id"></td></tr>';
 var baseActiveAccountSecondTr = '<tr class="success"><td class="character"></td></tr>';
 
 $(function () {
@@ -19,24 +19,24 @@ $(function () {
 function activeAccountsTab(linkElement) {
     if ($(linkElement).attr("href") === "#active_accounts") {
         $(".active-accounts-table").css("display: none;");
-        serverAction("get-active-accounts", renderAccounts);
+        serverAction("get-active-accounts", {}, renderAccounts);
     }
 }
 
 function bannedAccountsTab(linkElement) {
     if ($(linkElement).attr("href") === "#banned_accounts") {
         $(".banned-accounts-table").css("display: none;");
-        serverAction("get-banned-accounts", renderAccounts);
+        serverAction("get-banned-accounts", {}, renderAccounts);
     }
 }
 
-function serverAction(action, successCallback) {
-    if (typeof(successCallback) === "undefined") {
-        successCallback = function() {};
+function serverAction(action, params, successCallback) {
+    if (typeof(params) === "undefined") {
+        params = {};
     }
 
-    if (typeof(successCallbackParams) === "undefined") {
-        successCallbackParams = {};
+    if (typeof(successCallback) === "undefined") {
+        successCallback = function() {};
     }
 
     $.ajax({
@@ -45,7 +45,8 @@ function serverAction(action, successCallback) {
         dataType: 'json',
         data: {
             token: 'asdf',
-            action: action
+            action: action,
+            params: params
         },
         success: function (data, textStatus, jqXHR) {
             successCallback(data, action);
@@ -55,7 +56,11 @@ function serverAction(action, successCallback) {
 }
 
 function makeSteamUrl(steamId) {
-    return '<a href="http://steamcommunity.com/profiles/' + steamId + '">' + steamId + '</a>';
+    return '<a target="_blank" href="http://steamcommunity.com/profiles/' + steamId + '">' + steamId + '</a>';
+}
+
+function makeCharUrl(charId, charName) {
+    return '<a rel="'+charId+'" class="character-link" href="#">' + charName + '</a>';
 }
 
 function renderAccounts(data, action) {
@@ -92,11 +97,12 @@ function renderAccounts(data, action) {
                 tr = $(secondTr);
             }
 
-            tr.find(".character").html(data[i].Characters[j]);
+            tr.find(".character").html(makeCharUrl(data[i].Characters[j].ID,data[i].Characters[j].FullName));
             $("." + prefix + "-accounts-table tbody").append(tr);
         }
     }
 
+    $('.character-link').on('click', onCharacterLinkClick);
     $("." + prefix + "-accounts-table").css("display: table;");
 }
 
@@ -129,16 +135,6 @@ function serverStatusLongPoll(topic_version) {
                 $(".server-status").addClass('warning');
             }
 
-            $(".server-version.value").text(data.current_version + " / " + data.available_version);
-            
-            if (data.current_version != data.available_version) {  
-                $(".server-version").removeClass('success');
-                $(".server-version").addClass('danger');
-            } else {
-                $(".server-version").removeClass('danger');
-                $(".server-version").addClass('success');
-            }
-
             setTimeout(function(){serverStatusLongPoll(data.topic_version);}, 0);
             return
         },
@@ -151,4 +147,21 @@ function serverStatusLongPoll(topic_version) {
 
 function autorestartServerCheckboxChange() {
     console.log("autocomplete");
+}
+
+function renderSkills(data, action) {
+    for (var i in data) {
+        $("#skill" + i).find(".value").html(data[i]);
+    }
+}
+
+function onCharacterLinkClick(e) {
+    var charId = $(this).attr("rel");
+    var charName = $(this).text();
+    $("#charSkillsModal").find(".value").html("0");
+    serverAction("get-character-skills", {char_id: charId}, renderSkills);
+    $("#charSkillsModal").find("h5.character-name").html(charName);
+    $("#charSkillsModal").modal("show");
+
+    return false;
 }

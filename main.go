@@ -16,6 +16,7 @@ type Account struct {
 }
 
 type Character struct {
+	ID              int
 	Name            string
 	LastName        string
 	CreateTimestamp time.Time
@@ -24,9 +25,14 @@ type Character struct {
 	SteamID         uint64
 }
 
+type CharacterLinkInfo struct {
+	ID       string
+	FullName string
+}
+
 type BannedAccountResponse struct {
 	SteamID    uint64
-	Characters []string
+	Characters []*CharacterLinkInfo
 }
 
 var (

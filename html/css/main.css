@@ -26,3 +26,30 @@
     width: 100%;
     margin: auto;
 }
+
+.steam-id {
+    vertical-align: middle !important;
+    text-align: center;
+}
+
+th.steam-id {
+    text-align: center;
+}
+
+#charSkillsModal .col-xs-2, #charSkillsModal .col-xs-1 {
+    width: 44px;
+    text-align: center !important;
+}
+
+#charSkillsModal {
+    width: 240px;
+    margin: auto;
+}
+
+#charSkillsModal .modal-dialog {
+    width: 240px;    
+}
+
+h5.character-name {
+    text-align: center;
+}

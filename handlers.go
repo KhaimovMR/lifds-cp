@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	auth "github.com/abbot/go-http-auth"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -33,7 +34,10 @@ func ServerActionsHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
 		return
 	}
 
-	processClientAction(clientAction[0], w)
+	params := make(map[string]string)
+	params["char_id"] = r.PostFormValue("params[char_id]")
+	log.Println(params)
+	processClientAction(clientAction[0], w, params)
 }
 
 func ServerStatusHandler(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
