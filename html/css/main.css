@@ -42,14 +42,49 @@ th.steam-id {
 }
 
 #charSkillsModal {
-    width: 240px;
+    width: 500px;
     margin: auto;
 }
 
 #charSkillsModal .modal-dialog {
-    width: 240px;    
+    width: 500px;    
 }
 
 h5.character-name {
     text-align: center;
+}
+
+.crafting-skills {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    float: left;
+}
+
+.combat-skills {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    float: right;
+}
+
+.minor-skills {
+    margin: auto;
+    margin-bottom: 20px;
+    clear: both;
+    width: 45%;
+}
+
+#deathLogTab {
+    height: 500px;
+    overflow-x: auto;
+    overflow-y: scroll;
+}
+
+.deathlog-date {
+    margin-right: 30px;
+    font-size: 12px;
+}
+
+.killed-by {
+    font-size: 12px;
 }

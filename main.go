@@ -66,8 +66,8 @@ var (
 	osPathSeparator         string
 	dbConn                  *sql.DB
 	accounts                map[uint64]*Account
-	characters              map[string]*Character
-	charKeysSorted          []string
+	characters              map[int]*Character
+	charKeysSorted          []int
 	accKeysSorted           []uint64
 	sqls                    map[string]string
 )
@@ -101,7 +101,7 @@ func init() {
 	availableSrvVersionChan = make(chan string)
 	availableSrvVersionChan = make(chan string)
 	accounts = make(map[uint64]*Account)
-	characters = make(map[string]*Character)
+	characters = make(map[int]*Character)
 	currentSrvVersion = "1"
 	availableSrvVersion = "1"
 	statusPolls = make(map[int]chan string)

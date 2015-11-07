@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	auth "github.com/abbot/go-http-auth"
 	_ "github.com/go-sql-driver/mysql"
@@ -12,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -130,29 +128,10 @@ func actionSqlExec(action string) {
 func processClientAction(clientAction string, w http.ResponseWriter, params map[string]string) {
 	switch clientAction {
 	case "start":
-		if exeCmd != nil && exeCmd.ProcessState == nil {
-			log.Println("Preventing double start")
-			return
-		}
-
-		gameSrvCanStartChan <- true
-		message := "GETTING UP (MANUALLY)"
-		gameSrvStatusChan <- message
-		fmt.Fprint(w, "success")
+		serverStartAction(w, params)
 		break
 	case "stop":
-		if exeCmd != nil && exeCmd.ProcessState != nil {
-			log.Println("Preventing double kill")
-			return
-		}
-
-		gameSrvCanStart = false
-		message := "GETTING DOWN (MANUALLY)"
-		gameSrvStatusChan <- message
-		exeCmd.Process.Kill()
-		message = "DOWN (MANUALLY)"
-		gameSrvStatusChan <- message
-		fmt.Fprint(w, "success")
+		serverStopAction(w, params)
 		break
 	case "delete-trees":
 		//actionSqlExec(clientAction)
@@ -162,91 +141,17 @@ func processClientAction(clientAction string, w http.ResponseWriter, params map[
 		//actionSqlExec(clientAction)
 		fmt.Fprint(w, "success")
 		break
+	case "get-character-death-log":
+		getCharacterDeathLogAction(w, params)
+		break
 	case "get-character-skills":
-		charId, err := strconv.Atoi(params["char_id"])
-
-		if err != nil {
-			fmt.Fprint(w, "{\"error\": \"char_id has wrong symbols\"}")
-		}
-
-		charSkills := getCharacterSkills(charId)
-		stringified, err := json.Marshal(charSkills)
-
-		if err != nil {
-			fmt.Fprint(w, "{\"error\": \"Stringification failed\"}")
-			log.Println(err)
-		}
-
-		log.Println(string(stringified))
-		fmt.Fprint(w, string(stringified))
+		getCharacterSkillsAction(w, params)
 		break
 	case "get-active-accounts":
-		log.Println("Getting active accounts...")
-		fillDbData()
-		activeAccsSlice := getAccounts(true)
-		activeAccs := make([]*BannedAccountResponse, len(activeAccsSlice))
-		i := 0
-
-		for _, activeAcc := range activeAccsSlice {
-			j := 0
-			bA := new(BannedAccountResponse)
-			bA.SteamID = activeAcc.SteamID
-			bA.Characters = make([]*CharacterLinkInfo, len(activeAcc.Characters))
-
-			for _, charItem := range activeAcc.Characters {
-				charLinkInfo := new(CharacterLinkInfo)
-				charLinkInfo.ID = strconv.Itoa(charItem.ID)
-				charLinkInfo.FullName = charItem.Name + " " + charItem.LastName
-				bA.Characters[j] = charLinkInfo
-				j++
-			}
-
-			activeAccs[i] = bA
-			i++
-		}
-
-		stringified, err := json.Marshal(activeAccs)
-
-		if err != nil {
-			log.Panic("Stringification failed")
-		}
-
-		fmt.Fprint(w, string(stringified))
-		fmt.Println(string(stringified))
+		getActiveAccountsAction(w, params)
 		break
 	case "get-banned-accounts":
-		log.Println("Getting banned accounts...")
-		fillDbData()
-		bannedAccsSlice := getAccounts(false)
-		bannedAccs := make([]*BannedAccountResponse, len(bannedAccsSlice))
-		i := 0
-
-		for _, bannedAcc := range bannedAccsSlice {
-			j := 0
-			bA := new(BannedAccountResponse)
-			bA.SteamID = bannedAcc.SteamID
-			bA.Characters = make([]*CharacterLinkInfo, len(bannedAcc.Characters))
-
-			for _, charItem := range bannedAcc.Characters {
-				charLinkInfo := new(CharacterLinkInfo)
-				charLinkInfo.ID = strconv.Itoa(charItem.ID)
-				charLinkInfo.FullName = charItem.Name + " " + charItem.LastName
-				bA.Characters[j] = charLinkInfo
-				j++
-			}
-
-			bannedAccs[i] = bA
-			i++
-		}
-
-		stringified, err := json.Marshal(bannedAccs)
-
-		if err != nil {
-			log.Panic("Stringification failed")
-		}
-
-		fmt.Fprint(w, string(stringified))
-		fmt.Println(string(stringified))
+		getBannedAccountsAction(w, params)
 		break
 	default:
 		log.Print("Wrong server action received")
@@ -322,103 +227,6 @@ func initDbConnection() {
 func fillDbData() {
 	fillCharacters()
 	fillAccounts()
-}
-
-func fillCharacters() {
-	var rows *sql.Rows
-	var err error
-	accountQuery := `select c.ID, c.Name, c.LastName, c.CreateTimestamp, c.DeleteTimestamp, a.IsActive, a.SteamID
-	from ` + "`character`" + ` c
-	inner join account a on a.ID = c.AccountID
-	order by c.Name, c.LastName;`
-	rows, err = dbConn.Query(accountQuery)
-	checkError(err, "Error in querying database")
-	defer rows.Close()
-
-	for rows.Next() {
-		row := new(Character)
-		err = rows.Scan(&row.ID, &row.Name, &row.LastName, &row.CreateTimestamp, &row.DeleteTimestamp, &row.IsActive, &row.SteamID)
-
-		if err != nil {
-			fmt.Println("Error:", err)
-		}
-
-		charKeysSorted = append(charKeysSorted, row.Name)
-		characters[row.Name] = row
-		err = rows.Err()
-
-		if err != nil {
-			break
-		}
-	}
-
-	log.Printf("%v characters has been loaded", len(characters))
-}
-
-func fillAccounts() {
-	for _, key := range charKeysSorted {
-		charItem := characters[key]
-
-		if accounts[charItem.SteamID] == nil {
-			accounts[charItem.SteamID] = new(Account)
-			accounts[charItem.SteamID].SteamID = charItem.SteamID
-			accounts[charItem.SteamID].Characters = make(map[string]*Character)
-			accKeysSorted = append(accKeysSorted, charItem.SteamID)
-		}
-
-		accounts[charItem.SteamID].IsActive = charItem.IsActive
-		accounts[charItem.SteamID].Characters[charItem.Name] = charItem
-	}
-
-	log.Printf("%v accounts has been loaded", len(accounts))
-}
-
-func getAccounts(isActive bool) []*Account {
-	var accs []*Account
-
-	for _, steamId := range accKeysSorted {
-		acc := accounts[steamId]
-
-		if acc.IsActive == isActive {
-			accs = append(accs, acc)
-		}
-	}
-
-	return accs
-}
-
-func getCharacterSkills(characterId int) map[string]int {
-	charSkills := make(map[string]int)
-
-	if characterId == 0 {
-		return charSkills
-	}
-
-	var rows *sql.Rows
-	var err error
-	query := "select SkillTypeID as skill, round(SkillAmount/10000000) as amount from skills where CharacterID = ?"
-	rows, err = dbConn.Query(query, characterId)
-	checkError(err, "Error in querying database")
-	defer rows.Close()
-	var skillTypeID int
-	var skillAmount int
-
-	for rows.Next() {
-		err = rows.Scan(&skillTypeID, &skillAmount)
-
-		if err != nil {
-			fmt.Println("Error:", err)
-		}
-
-		charSkills[strconv.Itoa(skillTypeID)] = skillAmount
-		err = rows.Err()
-
-		if err != nil {
-			break
-		}
-	}
-
-	return charSkills
 }
 
 func checkError(err error, message string) {

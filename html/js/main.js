@@ -155,13 +155,25 @@ function renderSkills(data, action) {
     }
 }
 
+function renderDeathLog(data, action) {
+    var html = "";
+
+    for (var i in data) {
+        html += data[i] + "<br/>";
+    }
+
+    $("#deathLogTab").html(html);
+}
+
 function onCharacterLinkClick(e) {
     var charId = $(this).attr("rel");
     var charName = $(this).text();
     $("#charSkillsModal").find(".value").html("0");
     serverAction("get-character-skills", {char_id: charId}, renderSkills);
+    serverAction("get-character-death-log", {char_id: charId}, renderDeathLog);
     $("#charSkillsModal").find("h5.character-name").html(charName);
     $("#charSkillsModal").modal("show");
+    $("#skillsTabLink").tab("show");
 
     return false;
 }
