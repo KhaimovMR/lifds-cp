@@ -148,7 +148,13 @@ func getCharacterDeathLog(charId int) []string {
 
 		timeVal := time.Unix(int64(itemTime), 0)
 		timeString := fmt.Sprintf("%d-%02d-%02d %02d:%02d", timeVal.Year(), timeVal.Month(), timeVal.Day(), timeVal.Hour(), timeVal.Minute())
-		logItem = fmt.Sprintf("<span class=\"deathlog-date\">%v</span><strong>%v</strong> <span class=\"killed-by\">killed by</span> <strong>%v</strong>", timeString, victimName, killerName)
+
+		if isKnockout == 1 {
+			logItem = fmt.Sprintf("<span class=\"deathlog-date\">%v</span><strong>%v</strong> <span class=\"knocked-out-by\">knocked out by</span> <strong>%v</strong>", timeString, victimName, killerName)
+		} else {
+			logItem = fmt.Sprintf("<span class=\"deathlog-date\">%v</span><strong>%v</strong> <span class=\"killed-by\">killed by</span> <strong>%v</strong>", timeString, victimName, killerName)
+		}
+
 		logItems = append(logItems, logItem)
 		err = rows.Err()
 
