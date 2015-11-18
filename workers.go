@@ -40,3 +40,15 @@ func statusPollsReleaseWorker() {
 		}
 	}
 }
+
+func onlineStatisticsWorker() {
+	for {
+		if config["control-panel"]["online-statistics"] == "off" {
+			break
+		}
+
+		closeOfflineCharacterSessions()
+		openOnlineCharacterSessions()
+		time.Sleep(time.Second * 10)
+	}
+}

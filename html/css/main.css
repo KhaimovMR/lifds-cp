@@ -92,3 +92,18 @@ h5.character-name {
 .knocked-out-by {
     font-size: 12px;
 }
+
+#onlineHistoryTab {
+    height: 500px;
+    overflow-x: auto;
+    overflow-y: scroll;
+}
+
+.online-history-date {
+    margin-right: 30px;
+    font-size: 12px;
+}
+
+.nav > li.online-characters-button {
+    display: none;
+}

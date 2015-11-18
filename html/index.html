@@ -38,6 +38,7 @@
             <div>
                 <ul class="nav nav-tabs" role="tablist" id="nav_tabs">
                     <li class="active" role="presentation"><a href="#dashboard" aria-control="dashboard" role="tab" data-toggle="tab">Dashboard</a></li>
+                    <li class="online-characters-button" role="presentation"><a href="#online_characters" aria-control="online_characters" role="tab" data-toggle="tab">Online characters</a></li>
                     <li role="presentation"><a href="#active_accounts" aria-control="active_accounts" role="tab" data-toggle="tab">Active accounts</a></li>
                     <li role="presentation"><a href="#banned_accounts" aria-control="banned_accounts" role="tab" data-toggle="tab">Banned accounts</a></li>
                 </ul>
@@ -50,6 +51,19 @@
                                     <td class="server-status">Server status:</td>
                                     <td class="server-status value"></td>
                                 </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="online_characters">
+                        <h3>Online characters</h3>
+                        <table class="table online-characters-table">
+                            <thead>
+                                <tr class="success">
+                                    <th>Character name</th>
+                                    <th>Online time (minutes)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                             </tbody>
                         </table>
                     </div>
@@ -89,6 +103,7 @@
                             <ul class="nav nav-tabs" role="tablist" id="nav_tabs">
                                 <li class="active" role="presentation"><a id="skillsTabLink" href="#skillsTab" aria-control="skillsTab" role="tab" data-toggle="tab">Skills</a></li>
                                 <li role="presentation"><a href="#deathLogTab" aria-control="deathLogTab" role="tab" data-toggle="tab">Death log</a></li>
+                                <li role="presentation"><a href="#loginHistoryTab" aria-control="loginHistoryTab" role="tab" data-toggle="tab">Login history</a></li>
                             </ul>
                             <div class="tab-content">
                                 <div role="tabpanel" class="tab-pane active" id="skillsTab">
@@ -386,6 +401,8 @@
                                     </div>
                                 </div>
                                 <div role="tabpanel" class="tab-pane" id="deathLogTab">
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="loginHistoryTab">
                                 </div>
                             </div>
                         </div>

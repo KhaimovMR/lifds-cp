@@ -8,7 +8,7 @@ import (
 )
 
 func runGameServer() {
-	exeCmd = exec.Command(exePath, config["lifds"]["world-id"])
+	exeCmd = exec.Command(exePath, "-WorldID", config["lifds"]["world-id"])
 	exeCmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
 	exeCmd.Stdout = os.Stdout
 	exeCmd.Stderr = os.Stderr

@@ -35,6 +35,17 @@ type BannedAccountResponse struct {
 	Characters []*CharacterLinkInfo
 }
 
+type OnlineCharacterInfo struct {
+	ID         string
+	FullName   string
+	OnlineTime string
+}
+
+type CharacterOnlineHistory struct {
+	TotalOnlineTime float32
+	History         []string
+}
+
 var (
 	adminPassword           string
 	lastStartTime           time.Time
@@ -60,11 +71,11 @@ var (
 	responseBaseStr         string
 	config                  map[string]map[string]string
 	lifdsDirectory          string
-	worldId                 string
 	topicVersion            int
 	indexHtml               string
-	osPathSeparator         string
+	pathSeparator           string
 	dbConn                  *sql.DB
+	dbExists                bool
 	accounts                map[uint64]*Account
 	characters              map[int]*Character
 	charKeysSorted          []int
@@ -73,7 +84,8 @@ var (
 )
 
 func init() {
-	osPathSeparator = string(os.PathSeparator)
+	dbExists = false
+	pathSeparator = string(os.PathSeparator)
 	sqls = loadSqlQueries()
 	config = loadConfiguration()
 
@@ -105,16 +117,28 @@ func init() {
 	currentSrvVersion = "1"
 	availableSrvVersion = "1"
 	statusPolls = make(map[int]chan string)
-	responseBaseStr = "{\"debug\": %t, \"status\": \"%s\", \"current_version\": \"%s\", \"available_version\": \"%s\", \"topic_version\": %d}"
+	responseBaseStr = "{\"debug\": %t, \"status\": \"%s\", \"current_version\": \"%s\", \"available_version\": \"%s\", \"topic_version\": %d, \"online_statistics_enabled\": %t}"
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Lmicroseconds)
 	initDbConnection()
+
+	if config["control-panel"]["online-statistics"] == "on" {
+		createStatisticsTables()
+	}
+
 	fillDbData()
+
+	if config["control-panel"]["online-statistics"] == "on" {
+		createCsFile("lifdscp_stats.cs")
+		includeCsFile("lifdscp_stats.cs")
+		clearOnlineCharacters()
+	}
 }
 
 func main() {
 	go runGameServerLoop()
 	go runControlServer()
 	go statusPollsReleaseWorker()
+	go onlineStatisticsWorker()
 
 	for {
 		select {

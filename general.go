@@ -27,10 +27,10 @@ func loadSqlQueries() map[string]string {
 	var deleteStubsQuery, deleteLowQualityTreesQuery []byte
 	queries = make(map[string]string)
 
-	deleteStubsQuery, err = ioutil.ReadFile("sql" + osPathSeparator + "deleteStubs.sql")
+	deleteStubsQuery, err = ioutil.ReadFile("sql" + pathSeparator + "deleteStubs.sql")
 	checkError(err, "Error in loading sql file")
 
-	deleteLowQualityTreesQuery, err = ioutil.ReadFile("sql" + osPathSeparator + "deleteLowQualityTrees.sql")
+	deleteLowQualityTreesQuery, err = ioutil.ReadFile("sql" + pathSeparator + "deleteLowQualityTrees.sql")
 	checkError(err, "Error in loading sql file")
 
 	queries["delete-stubs"] = string(deleteStubsQuery)
@@ -60,6 +60,8 @@ func loadConfiguration() map[string]map[string]string {
 	case config["control-panel"]["address"] == "":
 	case config["control-panel"]["server-up-at-start"] == "":
 		exitWithMessage("Broken configuration in lifds-cp.ini file.")
+	case config["control-panel"]["online-statistics"] == "":
+		config["control-panel"]["online-statistics"] = "off"
 	}
 
 	if config["lifds"]["lifds-exe-file-name"] == "" {
@@ -68,11 +70,11 @@ func loadConfiguration() map[string]map[string]string {
 		exeFileName = config["lifds"]["lifds-exe-file-name"]
 	}
 
-	exePath = config["lifds"]["lifds-directory"] + osPathSeparator + exeFileName
-	worldCfgPath = config["lifds"]["lifds-directory"] + osPathSeparator + "config" + osPathSeparator + "world_" + config["lifds"]["world-id"] + ".xml"
+	exePath = config["lifds"]["lifds-directory"] + pathSeparator + exeFileName
+	worldCfgPath = config["lifds"]["lifds-directory"] + pathSeparator + "config" + pathSeparator + "world_" + config["lifds"]["world-id"] + ".xml"
 	worldCfgContentsBuff, err := ioutil.ReadFile(worldCfgPath)
 	worldCfgContents = string(worldCfgContentsBuff)
-	localCfgPath = config["lifds"]["lifds-directory"] + osPathSeparator + "config_local.cs"
+	localCfgPath = config["lifds"]["lifds-directory"] + pathSeparator + "config_local.cs"
 	localCfgFile, err := ini.LoadFile(localCfgPath)
 	dirtyDbHost, ok := localCfgFile.Get("", "$cm_config::DB::Connect::server")
 
@@ -111,7 +113,7 @@ func runControlServer() {
 	http.HandleFunc("/server", authenticator.Wrap(ServerActionsHandler))
 	http.HandleFunc("/server/status", authenticator.Wrap(ServerStatusHandler))
 	http.Handle("/index.html", authenticator.Wrap(indexHandler))
-	http.Handle("/", http.FileServer(http.Dir("."+osPathSeparator+"html")))
+	http.Handle("/", http.FileServer(http.Dir("."+pathSeparator+"html")))
 	http.ListenAndServe(config["control-panel"]["address"]+":"+config["control-panel"]["port"], nil)
 }
 
@@ -141,8 +143,14 @@ func processClientAction(clientAction string, w http.ResponseWriter, params map[
 		//actionSqlExec(clientAction)
 		fmt.Fprint(w, "success")
 		break
+	case "get-online-characters":
+		getOnlineCharactersListAction(w)
+		break
 	case "get-character-death-log":
 		getCharacterDeathLogAction(w, params)
+		break
+	case "get-character-online-history":
+		getCharacterOnlineHistoryAction(w, params)
 		break
 	case "get-character-skills":
 		getCharacterSkillsAction(w, params)
@@ -172,7 +180,14 @@ func isTransitState() bool {
 }
 
 func getStatusResponse(debug bool) string {
-	return fmt.Sprintf(responseBaseStr, debug, gameSrvStatus, currentSrvVersion, availableSrvVersion, topicVersion)
+	return fmt.Sprintf(
+		responseBaseStr,
+		debug,
+		gameSrvStatus,
+		currentSrvVersion,
+		availableSrvVersion,
+		topicVersion,
+		config["control-panel"]["online-statistics"] == "on")
 }
 
 func getAdminPassword() string {
@@ -222,6 +237,20 @@ func initDbConnection() {
 	checkError(err, "MySQL connection failed")
 	dbConn.SetMaxIdleConns(3)
 	dbConn.SetMaxOpenConns(9)
+	go ensureDbExists()
+}
+
+func ensureDbExists() {
+	for {
+		_, err := dbConn.Exec(fmt.Sprintf("use lif_%v", config["lifds"]["world-id"]))
+
+		if err == nil {
+			dbExists = true
+			break
+		}
+
+		time.Sleep(time.Second * 5)
+	}
 }
 
 func fillDbData() {
@@ -229,9 +258,80 @@ func fillDbData() {
 	fillAccounts()
 }
 
-func checkError(err error, message string) {
+func checkError(err error, message string) bool {
 	if err != nil {
-		log.Println(message)
-		log.Printf("Error: %v", err)
+		log.Printf(message+": %v", err)
+		return true
 	}
+
+	return false
+}
+
+func createCsFile(fileName string) {
+	csContent, err := ioutil.ReadFile("cs" + pathSeparator + fileName)
+
+	if checkError(err, fmt.Sprintf("Error on getting %s content", fileName)) {
+		return
+	}
+
+	f, err := os.OpenFile(config["lifds"]["lifds-directory"]+pathSeparator+fileName, os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Println("Error in creating file: ", err)
+		return
+	}
+
+	defer f.Close()
+	_, err = f.Write(csContent)
+
+	if err != nil {
+		log.Println("Error in file writing:", err)
+		return
+	}
+
+	fmt.Printf("File %s successfully written", fileName)
+}
+
+func includeCsFile(fileName string) {
+	if checkIfIncludeNeeded(fileName) == false {
+		return
+	}
+
+	writeCsInclude(fileName)
+}
+
+func checkIfIncludeNeeded(fileName string) bool {
+	mainCsContent, err := ioutil.ReadFile(config["lifds"]["lifds-directory"] + pathSeparator + "main.cs")
+
+	if err != nil {
+		log.Println("Error on getting main.cs content:", err)
+	}
+
+	compiled, _ := regexp.Compile("exec[(]\"" + fileName + "\"[)];")
+	matches := compiled.FindStringSubmatch(string(mainCsContent))
+
+	if len(matches) > 0 {
+		return false
+	} else {
+		return true
+	}
+}
+
+func writeCsInclude(fileName string) {
+	f, err := os.OpenFile(config["lifds"]["lifds-directory"]+pathSeparator+"main.cs", os.O_APPEND|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Println("Error in creating file: ", err)
+		return
+	}
+
+	defer f.Close()
+	_, err = f.WriteString("\r\nexec(\"" + fileName + "\");")
+
+	if err != nil {
+		log.Println("Error in writing main.cs file:", err)
+		return
+	}
+
+	fmt.Printf("File %s successfully included in main.cs", fileName)
 }

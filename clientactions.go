@@ -139,3 +139,43 @@ func getCharacterDeathLogAction(w http.ResponseWriter, params map[string]string)
 
 	fmt.Fprint(w, string(stringified))
 }
+
+func getCharacterOnlineHistoryAction(w http.ResponseWriter, params map[string]string) {
+	fillDbData()
+	charId, err := strconv.Atoi(params["char_id"])
+
+	if err != nil {
+		fmt.Fprint(w, "{\"error\": \"char_id has wrong symbols\"}")
+	}
+
+	onlineHistory := new(CharacterOnlineHistory)
+	onlineHistory.History = getCharacterOnlineHistory(charId)
+	onlineHistory.TotalOnlineTime = getTotalCharacterOnlineTime(charId)
+	stringified, err := json.Marshal(onlineHistory)
+
+	if err != nil {
+		fmt.Fprint(w, "{\"error\": \"Stringification failed\"}")
+		log.Println(err)
+	}
+
+	fmt.Fprint(w, string(stringified))
+}
+
+func getOnlineCharactersListAction(w http.ResponseWriter) {
+	if config["control-panel"]["online-statistics"] == "off" {
+		log.Println("online-statistics is unavailable")
+		fmt.Fprint(w, "[]")
+		return
+	}
+
+	onlineCharsList := getOnlineCharactersList()
+	log.Println("Online characters list:", onlineCharsList)
+	stringified, err := json.Marshal(onlineCharsList)
+
+	if err != nil {
+		fmt.Fprint(w, "{\"error\": \"Stringification failed\"}")
+		log.Println(err)
+	}
+
+	fmt.Fprint(w, string(stringified))
+}

@@ -12,6 +12,10 @@ import (
 func getCharacterSkills(characterId int) map[string]int {
 	charSkills := make(map[string]int)
 
+	if dbExists == false {
+		return charSkills
+	}
+
 	if characterId == 0 {
 		return charSkills
 	}
@@ -44,6 +48,10 @@ func getCharacterSkills(characterId int) map[string]int {
 }
 
 func fillCharacters() {
+	if dbExists == false {
+		return
+	}
+
 	var rows *sql.Rows
 	var err error
 	accountQuery := `select c.ID, c.Name, c.LastName, c.CreateTimestamp, c.DeleteTimestamp, a.IsActive, a.SteamID
@@ -51,7 +59,11 @@ func fillCharacters() {
 	inner join account a on a.ID = c.AccountID
 	order by c.Name, c.LastName;`
 	rows, err = dbConn.Query(accountQuery)
-	checkError(err, "Error in querying database")
+
+	if checkError(err, "Error in querying database") {
+		return
+	}
+
 	defer rows.Close()
 
 	for rows.Next() {
@@ -110,10 +122,19 @@ func getCharacterDeathLog(charId int) []string {
 	var rows *sql.Rows
 	var err error
 	var logItems []string
+
+	if dbExists == false {
+		return logItems
+	}
+
 	var logItem string
 	query := "select Time, CharID, KillerID, IsKnockout from chars_deathlog where CharID = ? or KillerID = ? order by Time desc"
 	rows, err = dbConn.Query(query, charId, charId)
-	checkError(err, "Error in querying database")
+
+	if checkError(err, "Error in querying database") {
+		return logItems
+	}
+
 	defer rows.Close()
 	var itemTime uint64
 	var victimId int
@@ -165,4 +186,232 @@ func getCharacterDeathLog(charId int) []string {
 
 	log.Println(logItems)
 	return logItems
+}
+
+func getCharacterOnlineHistory(charId int) []string {
+	var rows *sql.Rows
+	var err error
+	var logItems []string
+
+	if dbExists == false {
+		return logItems
+	}
+
+	var logItem string
+	query := "select unix_timestamp(LoggedInAt), unix_timestamp(LoggedOutAt), IsLoggedOut from lifdscp_online_history where CharacterID = ? order by LoggedInAt desc"
+	rows, err = dbConn.Query(query, charId)
+
+	if checkError(err, "Error in querying database") {
+		return logItems
+	}
+
+	defer rows.Close()
+	var loggedInAt uint64
+	var loggedOutAt uint64
+	var isLoggedOut int
+
+	for rows.Next() {
+		err = rows.Scan(&loggedInAt, &loggedOutAt, &isLoggedOut)
+
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+
+		loggedInTime := time.Unix(int64(loggedInAt), 0)
+		loggedInString := fmt.Sprintf(
+			"%d-%02d-%02d %02d:%02d",
+			loggedInTime.Year(),
+			loggedInTime.Month(),
+			loggedInTime.Day(),
+			loggedInTime.Hour(),
+			loggedInTime.Minute())
+
+		if isLoggedOut == 1 {
+			loggedOutTime := time.Unix(int64(loggedOutAt), 0)
+			loggedOutString := fmt.Sprintf(
+				"%d-%02d-%02d %02d:%02d",
+				loggedOutTime.Year(),
+				loggedOutTime.Month(),
+				loggedOutTime.Day(),
+				loggedOutTime.Hour(),
+				loggedOutTime.Minute())
+			logItem = fmt.Sprintf("<span class=\"online-history-date\">%v - %v</span>", loggedInString, loggedOutString)
+		} else {
+			logItem = fmt.Sprintf("<span class=\"online-history-date\">%v - till this moment</span>", loggedInString)
+		}
+
+		logItems = append(logItems, logItem)
+		err = rows.Err()
+
+		if err != nil {
+			break
+		}
+	}
+
+	log.Println(logItems)
+	return logItems
+}
+
+func getTotalCharacterOnlineTime(charId int) float32 {
+	var totalHours float32
+	var err error
+	query := "select sum(unix_timestamp(LoggedOutAt) - unix_timestamp(LoggedInAt))/3600 from lifdscp_online_history where CharacterID = ? and IsLoggedOut = 1"
+	rows, err := dbConn.Query(query, charId)
+
+	if checkError(err, "Error in querying database") {
+		return 0
+	}
+
+	defer rows.Close()
+	rows.Next()
+	rows.Scan(&totalHours)
+
+	return totalHours
+}
+
+func createStatisticsTables() {
+	if dbExists == false {
+		log.Println("DB doesn't exists. Delaying statistics tables creation.")
+		time.Sleep(time.Second * 10)
+		go createStatisticsTables()
+		return
+	}
+
+	query := "create table if not exists lifdscp_online_history (ID bigint unsigned not null auto_increment, CharacterID int unsigned not null, LoggedInAt timestamp not null default CURRENT_TIMESTAMP, LoggedOutAt timestamp not null default '0000-00-00 00:00:00', IsLoggedOut tinyint(1) not null default 0 comment '0 - still logged in, 1 - logged out', primary key (ID), key idx_CharacterID (CharacterID), key idx_LoggedInAt (LoggedInAt), key idx_LoggedOutAt (LoggedOutAt), key idx_IsLoggedOut (IsLoggedOut)) ENGINE=InnoDB auto_increment=1 default charset=utf8 collate=utf8_general_ci"
+	_, err := dbConn.Exec(query)
+
+	if err != nil {
+		log.Println("Error on lifdscp_online_character table create:", err)
+	}
+
+	query = "create table if not exists lifdscp_online_character (CharacterID int unsigned not null, LoggedInAt timestamp not null default CURRENT_TIMESTAMP, primary key (CharacterID)) ENGINE=InnoDB auto_increment=1 default charset=utf8 collate=utf8_general_ci"
+	_, err = dbConn.Exec(query)
+
+	if err != nil {
+		log.Println("Error on lifdscp_online_history table create:", err)
+	}
+}
+
+func getOnlineCharactersList() []*OnlineCharacterInfo {
+	var onlineCharsList []*OnlineCharacterInfo
+	var char *Character
+	var ok bool
+
+	if dbExists == false {
+		return onlineCharsList
+	}
+
+	onlineChars := getOnlineCharacters()
+	log.Println("Online chars:", onlineChars)
+
+	for charId, onlineTime := range onlineChars {
+		char, ok = characters[charId]
+
+		if ok == false {
+			log.Printf("No character with id %v found", charId)
+			continue
+		}
+
+		onlineChar := new(OnlineCharacterInfo)
+		onlineChar.ID = strconv.Itoa(charId)
+		onlineChar.FullName = fmt.Sprintf("%v %v", char.Name, char.LastName)
+		onlineChar.OnlineTime = strconv.Itoa(onlineTime)
+		onlineCharsList = append(onlineCharsList, onlineChar)
+	}
+
+	return onlineCharsList
+}
+
+func getOnlineCharacters() map[int]int {
+	var rows *sql.Rows
+	var err error
+	var onlineChars map[int]int
+	onlineChars = make(map[int]int)
+
+	if dbExists {
+		fillDbData()
+	} else {
+		log.Println("Passing empty onlineChars map, because of dbExists == false")
+		return onlineChars
+	}
+
+	var onlineChar int
+	var onlineTime int
+	query := "select CharacterID, (unix_timestamp(now()) - unix_timestamp(LoggedInAt)) OnlineTime from lifdscp_online_character"
+	rows, err = dbConn.Query(query)
+
+	if checkError(err, "Error in querying database") {
+		return onlineChars
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&onlineChar, &onlineTime)
+		log.Println(onlineChar)
+
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+
+		onlineChars[onlineChar] = onlineTime / 60
+		err = rows.Err()
+
+		if err != nil {
+			break
+		}
+	}
+
+	return onlineChars
+}
+
+func clearOnlineCharacters() {
+	if dbExists == false {
+		return
+	}
+
+	res, err := dbConn.Exec("delete from lifdscp_online_character")
+
+	if err != nil {
+		log.Println("Error on clearing online characters:", err)
+		return
+	}
+
+	rowsAffected, err := res.RowsAffected()
+
+	log.Printf("%v online characters cleared", rowsAffected)
+}
+
+func closeOfflineCharacterSessions() {
+	if dbExists == false {
+		return
+	}
+
+	query := "update lifdscp_online_history llh set llh.LoggedOutAt = NOW(), llh.IsLoggedOut = 1 where llh.IsLoggedOut = 0 and llh.CharacterID not in (select loc.CharacterID from lifdscp_online_character loc)"
+	res, err := dbConn.Exec(query)
+
+	if err != nil {
+		log.Println("Error on closing offline character session:", err)
+		return
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	log.Printf("%v offline character sessions closed", rowsAffected)
+}
+
+func openOnlineCharacterSessions() {
+	if dbExists == false {
+		return
+	}
+
+	query := "insert into lifdscp_online_history (CharacterID, LoggedInAt) select loc.CharacterID, loc.LoggedInAt from lifdscp_online_character loc where not exists (select llh.CharacterID from lifdscp_online_history llh where llh.IsLoggedOut = 0 and llh.CharacterID = loc.CharacterID)"
+	res, err := dbConn.Exec(query)
+
+	if err != nil {
+		log.Println("Error on closing offline character session:", err)
+		return
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	log.Printf("%v offline character sessions opened", rowsAffected)
 }

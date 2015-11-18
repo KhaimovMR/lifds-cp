@@ -2,6 +2,7 @@ var baseBannedAccountFirstTr = '<tr class="danger"><td class="character"></td><t
 var baseBannedAccountSecondTr = '<tr class="danger"><td class="character"></td></tr>';
 var baseActiveAccountFirstTr = '<tr class="success"><td class="character"></td><td class="steam-id"></td></tr>';
 var baseActiveAccountSecondTr = '<tr class="success"><td class="character"></td></tr>';
+var baseOnlineCharacterTr = '<tr class="success"><td class="character"></td><td class="online-time"></td></tr>';
 
 $(function () {
     $('#startServer').on('click', function(){serverAction('start');});
@@ -10,11 +11,19 @@ $(function () {
     $('#deleteStubs').on('click', function(){serverAction('delete-stubs');});
     $('#autorestartServerCheckbox').on('change', autorestartServerCheckboxChange);
     $('#nav_tabs a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+        onlineCharactersTab(e.target);
         activeAccountsTab(e.target);
         bannedAccountsTab(e.target);
     });
     serverStatusLongPoll(0);
 });
+
+function onlineCharactersTab(linkElement) {
+    if ($(linkElement).attr("href") === "#online_characters") {
+        $(".online-characters-table").css("display: none;");
+        serverAction("get-online-characters", {}, renderOnlineCharacters);
+    }
+}
 
 function activeAccountsTab(linkElement) {
     if ($(linkElement).attr("href") === "#active_accounts") {
@@ -61,6 +70,23 @@ function makeSteamUrl(steamId) {
 
 function makeCharUrl(charId, charName) {
     return '<a rel="'+charId+'" class="character-link" href="#">' + charName + '</a>';
+}
+
+function renderOnlineCharacters(data, action) {
+    var trHtml = baseOnlineCharacterTr;
+    $(".online-characters-table tbody").html("");
+    var tr;
+
+    for (i in data) {
+        tr = $(trHtml)
+
+        tr.find(".character").html(makeCharUrl(data[i].ID,data[i].FullName));
+        tr.find(".online-time").html(data[i].OnlineTime);
+        $(".online-characters-table tbody").append(tr);
+    }
+
+    $('.character-link').on('click', onCharacterLinkClick);
+    $(".online-characters-table").css("display: table;");
 }
 
 function renderAccounts(data, action) {
@@ -135,6 +161,10 @@ function serverStatusLongPoll(topic_version) {
                 $(".server-status").addClass('warning');
             }
 
+            if (data.online_statistics_enabled == true) {
+                $(".online-characters-button").show();
+            }
+
             setTimeout(function(){serverStatusLongPoll(data.topic_version);}, 0);
             return
         },
@@ -165,12 +195,25 @@ function renderDeathLog(data, action) {
     $("#deathLogTab").html(html);
 }
 
+function renderOnlineHistory(data, action) {
+    var html = "";
+    html += "Total time (hours): " + data.TotalOnlineTime + "<br/><br/>";
+    
+
+    for (var i in data.History) {
+        html += data.History[i] + "<br/>";
+    }
+
+    $("#loginHistoryTab").html(html);
+}
+
 function onCharacterLinkClick(e) {
     var charId = $(this).attr("rel");
     var charName = $(this).text();
     $("#charSkillsModal").find(".value").html("0");
     serverAction("get-character-skills", {char_id: charId}, renderSkills);
     serverAction("get-character-death-log", {char_id: charId}, renderDeathLog);
+    serverAction("get-character-online-history", {char_id: charId}, renderOnlineHistory);
     $("#charSkillsModal").find("h5.character-name").html(charName);
     $("#charSkillsModal").modal("show");
     $("#skillsTabLink").tab("show");
