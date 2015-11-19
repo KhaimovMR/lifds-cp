@@ -204,7 +204,7 @@ function renderOnlineHistory(data, action) {
         html += data.History[i] + "<br/>";
     }
 
-    $("#loginHistoryTab").html(html);
+    $("#onlineHistoryTab").html(html);
 }
 
 function onCharacterLinkClick(e) {
