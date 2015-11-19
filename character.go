@@ -337,7 +337,7 @@ func getOnlineCharacters() map[int]int {
 
 	var onlineChar int
 	var onlineTime int
-	query := "select CharacterID, (unix_timestamp(now()) - unix_timestamp(LoggedInAt)) OnlineTime from lifdscp_online_character"
+	query := "select loc.CharacterID, (unix_timestamp(now()) - unix_timestamp(loc.LoggedInAt)) OnlineTime from lifdscp_online_character loc inner join `character` c on c.ID = loc.CharacterID order by c.Name, c.LastName"
 	rows, err = dbConn.Query(query)
 
 	if checkError(err, "Error in querying database") {
