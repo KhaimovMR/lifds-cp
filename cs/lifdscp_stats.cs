@@ -4,9 +4,10 @@ $LIFDS_ONLINE_UPDATE_INTERVAL = 10000; //Update list every 10 seconds
 
 $nullObj = new SimObject();
 
-function sqlNullCallback() 
+function sqlNullCallback(%rs) 
 {
-
+	dbi.remove(%rs);
+	%rs.delete();
 }
 
 function sqlExecute(%sql)
