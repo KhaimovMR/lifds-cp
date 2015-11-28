@@ -1,60 +1,67 @@
-cancel($UPDATE_TIMER);
+cancel($LIFDS_UPDATE_TIMER);
 
 $LIFDS_ONLINE_UPDATE_INTERVAL = 10000; //Update list every 10 seconds
 
-$nullObj = new SimObject();
+$LIFDS_nullObj = new SimObject();
 
-function sqlNullCallback(%rs) 
+package LiFDSCP
 {
-	dbi.remove(%rs);
-	%rs.delete();
+
+function LIFDS_sqlNullCallback(%rs) 
+{
+    dbi.remove(%rs);
+    %rs.delete();
 }
 
-function sqlExecute(%sql)
+function LIFDS_sqlExecute(%sql)
 {
     echo("QUERY: " @ %sql);
-	dbi.Execute(%sql, sqlNullCallback, $nullObj);
+    dbi.Execute(%sql, LIFDS_sqlNullCallback, $LIFDS_nullObj);
 }
 
-function onTimerElapsed()
+function LIFDS_onTimerElapsed()
 {
-	echo("Updating" SPC ClientGroup.getCount() SPC "players...");
+    echo("Updating" SPC ClientGroup.getCount() SPC "players...");
     %onlineChars = "";
     %haveChars = 0;
-	sqlExecute("begin");
+    sqlExecute("begin");
 
     for(%id = 0; %id < ClientGroup.getCount(); %id++)
     {
         %client = ClientGroup.getObject(%id);
         %pid = %client.getCharacterId();
-        updatePlayer(%pid,%client);
+        LIFDS_updatePlayer(%pid,%client);
 
         if (%id > 0)
         {
             %onlineChars = %onlineChars @ ", ";
         }
 		
-		%onlineChars = %onlineChars @ %pid;
+        %onlineChars = %onlineChars @ %pid;
         %haveChars = 1;
     }
 
     if (%haveChars > 0)
     {
-        sqlExecute("delete from lifdscp_online_character where CharacterID not in (" @ %onlineChars @ ")");
+        LIFDS_sqlExecute("delete from lifdscp_online_character where CharacterID not in (" @ %onlineChars @ ")");
     }
     else
     {
-        sqlExecute("delete from lifdscp_online_character");
+        LIFDS_sqlExecute("delete from lifdscp_online_character");
     }
 
-    sqlExecute("commit");
-	$UPDATE_TIMER = schedule($LIFDS_ONLINE_UPDATE_INTERVAL, 0, "onTimerElapsed");
+    LIFDS_sqlExecute("commit");
+    $LIFDS_UPDATE_TIMER = schedule($LIFDS_ONLINE_UPDATE_INTERVAL, 0, "LIFDS_onTimerElapsed");
 }
 
-function updatePlayer(%pid, %obj)
+function LIFDS_updatePlayer(%pid, %obj)
 {
     echo("Updating player " @ %pid);
-	sqlExecute("insert ignore lifdscp_online_character (CharacterID) VALUES (" @ %pid @ ")");
+    LIFDS_sqlExecute("insert ignore lifdscp_online_character (CharacterID) VALUES (" @ %pid @ ")");
 }
 
-$UPDATE_TIMER = schedule(100, 0, "onTimerElapsed");
+};
+
+ActivatePackage(LiFDSCP);
+
+$LIFDS_UPDATE_TIMER = schedule(100, 0, "LIFDS_onTimerElapsed");
