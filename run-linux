@@ -1,2 +1,2 @@
 #!/bin/bash
-go run main.go general.go workers.go handlers.go osdep_linux.go
+go build && ./lifds-cp 

@@ -7,6 +7,7 @@ var baseOnlineCharacterTr = '<tr class="success"><td class="character"></td><td 
 $(function () {
     $('#startServer').on('click', function(){serverAction('start');});
     $('#stopServer').on('click', function(){serverAction('stop');});
+    $('#restartServer').on('click', function(){serverAction('restart');});
     $('#deleteTrees').on('click', function(){serverAction('delete-trees');});
     $('#deleteStubs').on('click', function(){serverAction('delete-stubs');});
     $('#autorestartServerCheckbox').on('change', autorestartServerCheckboxChange);
@@ -163,6 +164,9 @@ function serverStatusLongPoll(topic_version) {
 
             if (data.online_statistics_enabled == true) {
                 $(".online-characters-button").show();
+            } else {
+                $(".dashboard-button a").tab('show');
+                $(".online-characters-button").hide();
             }
 
             setTimeout(function(){serverStatusLongPoll(data.topic_version);}, 0);
