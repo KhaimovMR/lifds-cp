@@ -8,14 +8,13 @@ package LIFDSCP
 {
     function LIFDSCP_sqlNullCallback(%rs) 
     {
-        dbi.remove(%rs);
-        %rs.delete();
     }
 
     function LIFDSCP_sqlExecute(%sql)
     {
         echo("QUERY: " @ %sql);
-        dbi.Execute(%sql, LIFDSCP_sqlNullCallback, $LIFDSCP_nullObj);
+        %s = dbi.Execute(%sql, LIFDSCP_sqlNullCallback, $LIFDSCP_nullObj);
+        dbi.remove(%s);
     }
 
     function LIFDSCP_onTimerElapsed()
