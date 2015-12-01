@@ -2419,7 +2419,7 @@ table th[class*="col-"] {
 .table > thead > tr.warning > th,
 .table > tbody > tr.warning > th,
 .table > tfoot > tr.warning > th {
-  background-color: #f89406;
+  background-color: #e8d466;
   text-shadow: 0px 0px 5px rgba(0,0,0,0.7);
 }
 .table-hover > tbody > tr > td.warning:hover,
@@ -6946,10 +6946,10 @@ button.close {
           filter: none;
 }
 .btn-warning {
-  background-image: -webkit-linear-gradient(#faa123, #f89406 60%, #e48806);
-  background-image: -o-linear-gradient(#faa123, #f89406 60%, #e48806);
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#faa123), color-stop(60%, #f89406), to(#e48806));
-  background-image: linear-gradient(#faa123, #f89406 60%, #e48806);
+  background-image: -webkit-linear-gradient(#faa163, #f89446 60%, #e48846);
+  background-image: -o-linear-gradient(#faa163, #f89446 60%, #e48846);
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#faa163), color-stop(60%, #f89446), to(#e48846));
+  background-image: linear-gradient(#dac163, #d8b446 60%, #d4a846);
   background-repeat: no-repeat;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffaa123', endColorstr='#ffe48806', GradientType=0);
   -webkit-filter: none;

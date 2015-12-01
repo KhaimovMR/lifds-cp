@@ -39,42 +39,42 @@ func loadSqlQueries() map[string]string {
 }
 
 func loadConfiguration() map[string]map[string]string {
-	config := make(map[string]map[string]string)
+	new_config := make(map[string]map[string]string)
 	iniFile, err := ini.LoadFile("lifds-cp.ini")
 
 	if err != nil {
 		exitWithMessage("Can't read configuration from lifds-cp.ini file.")
 	}
 
-	config["lifds"] = iniFile.Section("lifds")
-	config["control-panel"] = iniFile.Section("control-panel")
+	new_config["lifds"] = iniFile.Section("lifds")
+	new_config["control-panel"] = iniFile.Section("control-panel")
 
-	config["lifds"]["db-host"] = ""
+	new_config["lifds"]["db-host"] = ""
 
 	switch {
-	case config["lifds"] == nil:
-	case config["lifds"]["lifds-directory"] == "":
-	case config["lifds"]["world-id"] == "":
-	case config["control-panel"] == nil:
-	case config["control-panel"]["port"] == "":
-	case config["control-panel"]["address"] == "":
-	case config["control-panel"]["server-up-at-start"] == "":
+	case new_config["lifds"] == nil:
+	case new_config["lifds"]["lifds-directory"] == "":
+	case new_config["lifds"]["world-id"] == "":
+	case new_config["control-panel"] == nil:
+	case new_config["control-panel"]["port"] == "":
+	case new_config["control-panel"]["address"] == "":
+	case new_config["control-panel"]["server-up-at-start"] == "":
 		exitWithMessage("Broken configuration in lifds-cp.ini file.")
-	case config["control-panel"]["online-statistics"] == "":
-		config["control-panel"]["online-statistics"] = "off"
+	case new_config["control-panel"]["online-statistics"] == "":
+		new_config["control-panel"]["online-statistics"] = "off"
 	}
 
-	if config["lifds"]["lifds-exe-file-name"] == "" {
+	if new_config["lifds"]["lifds-exe-file-name"] == "" {
 		exeFileName = "ddctd_cm_yo_server.exe"
 	} else {
-		exeFileName = config["lifds"]["lifds-exe-file-name"]
+		exeFileName = new_config["lifds"]["lifds-exe-file-name"]
 	}
 
-	exePath = config["lifds"]["lifds-directory"] + pathSeparator + exeFileName
-	worldCfgPath = config["lifds"]["lifds-directory"] + pathSeparator + "config" + pathSeparator + "world_" + config["lifds"]["world-id"] + ".xml"
+	exePath = new_config["lifds"]["lifds-directory"] + pathSeparator + exeFileName
+	worldCfgPath = new_config["lifds"]["lifds-directory"] + pathSeparator + "config" + pathSeparator + "world_" + new_config["lifds"]["world-id"] + ".xml"
 	worldCfgContentsBuff, err := ioutil.ReadFile(worldCfgPath)
 	worldCfgContents = string(worldCfgContentsBuff)
-	localCfgPath = config["lifds"]["lifds-directory"] + pathSeparator + "config_local.cs"
+	localCfgPath = new_config["lifds"]["lifds-directory"] + pathSeparator + "config_local.cs"
 	localCfgFile, err := ini.LoadFile(localCfgPath)
 	dirtyDbHost, ok := localCfgFile.Get("", "$cm_config::DB::Connect::server")
 
@@ -97,15 +97,15 @@ func loadConfiguration() map[string]map[string]string {
 	dbHost := getCleanLocalCfgValue(dirtyDbHost)
 	dbUser := getCleanLocalCfgValue(dirtyDbUser)
 	dbPassword := getCleanLocalCfgValue(dirtyDbPassword)
-	config["lifds"]["db-host"] = dbHost
-	config["lifds"]["db-user"] = dbUser
-	config["lifds"]["db-password"] = dbPassword
+	new_config["lifds"]["db-host"] = dbHost
+	new_config["lifds"]["db-user"] = dbUser
+	new_config["lifds"]["db-password"] = dbPassword
 
 	if err != nil {
 		log.Printf("Can't open config file \"%s\"", worldCfgPath)
 	}
 
-	return config
+	return new_config
 }
 
 func runControlServer() {
@@ -134,6 +134,9 @@ func processClientAction(clientAction string, w http.ResponseWriter, params map[
 		break
 	case "stop":
 		serverStopAction(w, params)
+		break
+	case "restart":
+		serverRestartAction(w, params)
 		break
 	case "delete-trees":
 		//actionSqlExec(clientAction)
@@ -334,4 +337,31 @@ func writeCsInclude(fileName string) {
 	}
 
 	fmt.Printf("File %s successfully included in main.cs", fileName)
+}
+
+func excludeCs(fileName string) {
+	if checkIfIncludeNeeded(fileName) == false {
+		writeCsExclude(fileName)
+	}
+}
+
+func writeCsExclude(fileName string) {
+	mainCsFilePath := config["lifds"]["lifds-directory"] + pathSeparator + "main.cs"
+	mainCsFileContent, err := ioutil.ReadFile(mainCsFilePath)
+
+	if err != nil {
+		log.Println("Error in reading main.cs file: ", err)
+		return
+	}
+
+	cleanedContent := strings.Replace(string(mainCsFileContent), "\r\nexec(\""+fileName+"\");", "", -1)
+	log.Printf("Excluding %v from main.cs", fileName)
+	err = ioutil.WriteFile(mainCsFilePath, []byte(cleanedContent), 0644)
+
+	if err != nil {
+		log.Println("Error in writing main.cs file:", err)
+		return
+	}
+
+	fmt.Printf("File %s successfully excluded from main.cs", fileName)
 }

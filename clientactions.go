@@ -35,6 +35,19 @@ func serverStopAction(w http.ResponseWriter, params map[string]string) {
 	fmt.Fprint(w, "success")
 }
 
+func serverRestartAction(w http.ResponseWriter, params map[string]string) {
+	if exeCmd != nil && exeCmd.ProcessState != nil {
+		log.Println("Preventing double kill")
+		return
+	}
+
+	gameSrvCanStart = true
+	exeCmd.Process.Kill()
+	message := "RESTARTING (MANUALLY)"
+	gameSrvStatusChan <- message
+	fmt.Fprint(w, "success")
+}
+
 func getActiveAccountsAction(w http.ResponseWriter, params map[string]string) {
 	log.Println("Getting active accounts...")
 	fillDbData()
