@@ -120,18 +120,7 @@ func init() {
 	responseBaseStr = "{\"debug\": %t, \"status\": \"%s\", \"current_version\": \"%s\", \"available_version\": \"%s\", \"topic_version\": %d, \"online_statistics_enabled\": %t}"
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Lmicroseconds)
 	initDbConnection()
-
-	if config["control-panel"]["online-statistics"] == "on" {
-		createStatisticsTables()
-	}
-
 	fillDbData()
-
-	if config["control-panel"]["online-statistics"] == "on" {
-		createCsFile("lifdscp_stats.cs")
-		includeCsFile("lifdscp_stats.cs")
-		clearOnlineCharacters()
-	}
 }
 
 func main() {

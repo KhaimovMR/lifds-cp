@@ -8,6 +8,17 @@ import (
 func runGameServerLoop() {
 	for {
 		if gameSrvCanStart {
+			config = loadConfiguration()
+
+			if config["control-panel"]["online-statistics"] == "on" {
+				createStatisticsTables()
+				createCsFile("lifdscp_stats.cs")
+				includeCsFile("lifdscp_stats.cs")
+				clearOnlineCharacters()
+			} else {
+				excludeCs("lifdscp_stats.cs")
+			}
+
 			runGameServer()
 		}
 
