@@ -10,6 +10,7 @@ import (
 func runGameServer() {
 	exeCmd = exec.Command(exePath, "-WorldID", config["lifds"]["world-id"])
 	exeCmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x00000008}
+	exeCmd.Stdin = os.Stdin
 	exeCmd.Stdout = os.Stdout
 	exeCmd.Stderr = os.Stderr
 	err := exeCmd.Start()
