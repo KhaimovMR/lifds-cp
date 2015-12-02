@@ -30,8 +30,8 @@ type CharacterLinkInfo struct {
 	FullName string
 }
 
-type BannedAccountResponse struct {
-	SteamID    uint64
+type AccountResponse struct {
+	SteamID    string
 	Characters []*CharacterLinkInfo
 }
 
