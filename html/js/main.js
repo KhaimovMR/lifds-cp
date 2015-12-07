@@ -88,6 +88,7 @@ function renderOnlineCharacters(data, action) {
 
     $('.character-link').on('click', onCharacterLinkClick);
     $(".online-characters-table").css("display: table;");
+    initTableFilter('#onlineCharactersTable');
 }
 
 function renderAccounts(data, action) {
@@ -131,6 +132,7 @@ function renderAccounts(data, action) {
 
     $('.character-link').on('click', onCharacterLinkClick);
     $("." + prefix + "-accounts-table").css("display: table;");
+    initTableFilter('#' + $("." + prefix + "-accounts-table").attr('id'));
 }
 
 function serverStatusLongPoll(topic_version) {
@@ -223,4 +225,59 @@ function onCharacterLinkClick(e) {
     $("#skillsTabLink").tab("show");
 
     return false;
+}
+
+function initTableFilter(tableSelector) {
+    $(tableSelector + 'Filter').unbind();
+    $(tableSelector + 'Filter').val('');
+    var rowspanIndexes = [];
+    $(tableSelector + ' td[rowspan!=""]').each(function(){
+        rowspanIndexes.push([$(this).parent().index(), +$(this).attr('rowspan')]);
+    });
+    $(tableSelector).data('rowspan-indexes', rowspanIndexes);
+    $(tableSelector + 'Filter').change(function() {
+        var toShow;
+        var searchValue = $(this).val();
+        $(tableSelector + " td").removeClass('info');
+
+        if ($(this).val()) {
+            toShow = $(tableSelector + " td:contains('" + searchValue + "')");
+        } else {
+            toShow = $(tableSelector + " td");
+        }
+
+        $(tableSelector + ' tr').not( $(tableSelector + ' tr').has(toShow) ).hide();
+
+        var showTrs = function(trsParent, fromIndex, count) {
+            var trs = $(trsParent.find('tr'));
+
+            for (var i = fromIndex; i < fromIndex + count; i++) {
+                $(trs[i]).show();
+            }
+        };
+
+        toShow.each(function() {
+            var trIndex = $(this).parent().index();
+            var rspan = $(this).attr('rowspan');
+            var trsParent = $(this).parent().parent();
+            var found = false;
+
+            for (var i = rowspanIndexes.length - 1; i >= 0; i--) {
+                var pair = rowspanIndexes[i];
+
+                if (trIndex >= pair[0] && trIndex < pair[0] + pair[1]) {
+                    showTrs(trsParent, pair[0], pair[1]);
+                    found = true;
+                }
+            }
+
+            if (found === false) {
+                $(this).parent().show();
+            }
+
+            if (searchValue) {
+                $(this).addClass('info');
+            }
+        });
+    });
 }
