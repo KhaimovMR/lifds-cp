@@ -5,15 +5,9 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"sync"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-)
-
-var (
-	fillCharactersMutex sync.Mutex
-	fillAccountsMutex   sync.Mutex
 )
 
 func getCharacterSkills(characterId int) map[string]int {
@@ -55,7 +49,6 @@ func getCharacterSkills(characterId int) map[string]int {
 }
 
 func fillCharacters() {
-	fillCharactersMutex.Lock()
 	if dbExists == false {
 		return
 	}
@@ -83,7 +76,9 @@ func fillCharacters() {
 		}
 
 		charKeysSorted = append(charKeysSorted, row.ID)
+		fillCharactersMutex.Lock()
 		characters[row.ID] = row
+		fillCharactersMutex.Unlock()
 		err = rows.Err()
 
 		if err != nil {
@@ -92,7 +87,6 @@ func fillCharacters() {
 	}
 
 	log.Printf("%v characters has been loaded", len(characters))
-	fillCharactersMutex.Unlock()
 }
 
 func fillAccounts() {

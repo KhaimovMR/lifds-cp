@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"sync"
 	"time"
 )
 
@@ -82,9 +83,13 @@ var (
 	charKeysSorted          []int
 	accKeysSorted           []uint64
 	sqls                    map[string]string
+	fillCharactersMutex     *sync.Mutex
+	fillAccountsMutex       *sync.Mutex
 )
 
 func init() {
+	fillCharactersMutex = &sync.Mutex{}
+	fillAccountsMutex = &sync.Mutex{}
 	dbExists = false
 	pathSeparator = string(os.PathSeparator)
 	sqls = loadSqlQueries()
