@@ -1,3 +1,29 @@
+body {
+    background-color: #373b40;
+    background-image: url(/images/bg/texture-cloth.jpg);
+    width: 100%;
+}
+
+.header-wrapper {
+    width: 800px;
+    margin: auto;
+    margin-bottom: 20px;
+    background-color: rgba(37,39,40,0.8);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding: 5px;
+    text-align: center;
+}
+
+.content-wrapper {
+    width: 800px;
+    margin: auto;
+    background-color: rgba(37,39,40,0.8);
+    min-height: 500px;
+    border-radius: 20px;
+    padding: 20px;
+}
+
 .inputs-wrapper {
     min-height: 40px;
     width: 600px;
@@ -23,7 +49,6 @@
 }
 
 .server-control-buttons {
-    width: 100%;
     margin: auto;
 }
 

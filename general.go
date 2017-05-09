@@ -3,9 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	auth "github.com/abbot/go-http-auth"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/vaughan0/go-ini"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +10,10 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	auth "github.com/abbot/go-http-auth"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/vaughan0/go-ini"
 )
 
 func exitWithMessage(message string) {
@@ -54,6 +55,7 @@ func loadConfiguration() map[string]map[string]string {
 	switch {
 	case new_config["lifds"] == nil:
 	case new_config["lifds"]["lifds-directory"] == "":
+	case new_config["lifds"]["wine-executable"] == "":
 	case new_config["lifds"]["world-id"] == "":
 	case new_config["control-panel"] == nil:
 	case new_config["control-panel"]["port"] == "":
@@ -68,6 +70,12 @@ func loadConfiguration() map[string]map[string]string {
 		exeFileName = "ddctd_cm_yo_server.exe"
 	} else {
 		exeFileName = new_config["lifds"]["lifds-exe-file-name"]
+	}
+
+	if new_config["lifds"]["wine-executable"] == "" {
+		wineExePath = "/usr/bin/wine64"
+	} else {
+		wineExePath = new_config["lifds"]["wine-executable"]
 	}
 
 	exePath = new_config["lifds"]["lifds-directory"] + pathSeparator + exeFileName

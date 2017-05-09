@@ -52,13 +52,13 @@ func getActiveAccountsAction(w http.ResponseWriter, params map[string]string) {
 	log.Println("Getting active accounts...")
 	fillDbData()
 	activeAccsSlice := getAccounts(true)
-	activeAccs := make([]*BannedAccountResponse, len(activeAccsSlice))
+	activeAccs := make([]*AccountResponse, len(activeAccsSlice))
 	i := 0
 
 	for _, activeAcc := range activeAccsSlice {
 		j := 0
-		bA := new(BannedAccountResponse)
-		bA.SteamID = activeAcc.SteamID
+		bA := new(AccountResponse)
+		bA.SteamID = fmt.Sprintf("%v", activeAcc.SteamID)
 		bA.Characters = make([]*CharacterLinkInfo, len(activeAcc.Characters))
 
 		for _, charItem := range activeAcc.Characters {
@@ -86,13 +86,13 @@ func getBannedAccountsAction(w http.ResponseWriter, params map[string]string) {
 	log.Println("Getting banned accounts...")
 	fillDbData()
 	bannedAccsSlice := getAccounts(false)
-	bannedAccs := make([]*BannedAccountResponse, len(bannedAccsSlice))
+	bannedAccs := make([]*AccountResponse, len(bannedAccsSlice))
 	i := 0
 
 	for _, bannedAcc := range bannedAccsSlice {
 		j := 0
-		bA := new(BannedAccountResponse)
-		bA.SteamID = bannedAcc.SteamID
+		bA := new(AccountResponse)
+		bA.SteamID = fmt.Sprintf("%v", bannedAcc.SteamID)
 		bA.Characters = make([]*CharacterLinkInfo, len(bannedAcc.Characters))
 
 		for _, charItem := range bannedAcc.Characters {

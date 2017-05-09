@@ -30,8 +30,8 @@ type CharacterLinkInfo struct {
 	FullName string
 }
 
-type BannedAccountResponse struct {
-	SteamID    uint64
+type AccountResponse struct {
+	SteamID    string
 	Characters []*CharacterLinkInfo
 }
 
@@ -52,6 +52,7 @@ var (
 	lastStopTime            time.Time
 	serverToken             string
 	exePath                 string
+	wineExePath             string
 	worldCfgPath            string
 	worldCfgContents        string
 	localCfgPath            string
