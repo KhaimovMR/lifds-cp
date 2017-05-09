@@ -3,10 +3,17 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"strconv"
+	"sync"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+var (
+	fillCharactersMutex sync.Mutex
+	fillAccountsMutex   sync.Mutex
 )
 
 func getCharacterSkills(characterId int) map[string]int {
@@ -48,6 +55,7 @@ func getCharacterSkills(characterId int) map[string]int {
 }
 
 func fillCharacters() {
+	fillCharactersMutex.Lock()
 	if dbExists == false {
 		return
 	}
@@ -84,9 +92,12 @@ func fillCharacters() {
 	}
 
 	log.Printf("%v characters has been loaded", len(characters))
+	fillCharactersMutex.Unlock()
 }
 
 func fillAccounts() {
+	fillAccountsMutex.Lock()
+
 	for _, key := range charKeysSorted {
 		charItem := characters[key]
 
@@ -102,6 +113,7 @@ func fillAccounts() {
 	}
 
 	log.Printf("%v accounts has been loaded", len(accounts))
+	fillAccountsMutex.Unlock()
 }
 
 func getAccounts(isActive bool) []*Account {
