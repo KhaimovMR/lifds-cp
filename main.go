@@ -52,6 +52,7 @@ var (
 	lastStopTime            time.Time
 	serverToken             string
 	exePath                 string
+	wineExePath             string
 	worldCfgPath            string
 	worldCfgContents        string
 	localCfgPath            string
