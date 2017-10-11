@@ -105,6 +105,11 @@ func loadConfiguration() map[string]map[string]string {
 	dbHost := getCleanLocalCfgValue(dirtyDbHost)
 	dbUser := getCleanLocalCfgValue(dirtyDbUser)
 	dbPassword := getCleanLocalCfgValue(dirtyDbPassword)
+
+	if !strings.Contains(dbHost, ":") {
+		dbHost = dbHost + ":3306"
+	}
+
 	new_config["lifds"]["db-host"] = dbHost
 	new_config["lifds"]["db-user"] = dbUser
 	new_config["lifds"]["db-password"] = dbPassword
@@ -238,7 +243,7 @@ func Secret(user, realm string) string {
 func initDbConnection() {
 	var err error
 	connectStr := fmt.Sprintf(
-		"%v:%v@tcp(%v:3306)/lif_%v?charset=utf8&parseTime=true",
+		"%v:%v@tcp(%v)/lif_%v?charset=utf8&parseTime=true",
 		config["lifds"]["db-user"],
 		config["lifds"]["db-password"],
 		config["lifds"]["db-host"],
